@@ -48,7 +48,6 @@ PRODUCT_PACKAGES += \
 # Recovery
 PRODUCT_PACKAGES += \
     init.recovery.qcom.rc \
-    lpm.rc \
     choice_fn \
     power_test \
     offmode_charging \
@@ -66,17 +65,14 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/gps/gps.conf:system/etc/gps.conf
 
-# Permissions
-PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml
-
 # Common build properties
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.gps.qmienabled=true \
     ro.baseband.arch=msm \
-    ro.opengles.version=131072 \
     ro.product.wireless=WCN3660 \
-    ro.qualcomm.bt.hci_transport=smd
+    ro.qualcomm.bt.hci_transport=smd \
+    ro.telephony.ril_class=HTCQualcommRIL \
+    ro.telephony.ril.v3=skipradiooff
 
 # call the proprietary setup
 $(call inherit-product-if-exists, vendor/htc/s4-common/s4-common-vendor.mk)
