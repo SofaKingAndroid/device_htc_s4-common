@@ -131,6 +131,10 @@ on boot
     # audio
     mkdir /data/audio 0775 media audio
 
+    # camera
+    chown system camera /sys/camera_htccallback/htccallback
+    chmod 0660 /sys/camera_htccallback/htccallback
+
     # radio
     mkdir /data/radio 0770 radio radio
 
@@ -144,6 +148,7 @@ on boot
     chown system system /sys/class/leds/amber/blink
     chown system system /sys/class/leds/button-backlight/brightness
     chown system system /sys/class/leds/lcd-backlight/brightness
+    chown system system /sys/class/leds/button-backlight/currents
 
     # flashlight
     chown system system /sys/class/leds/flashlight/brightness
@@ -171,6 +176,10 @@ on boot
     write /proc/sys/net/ipv6/conf/rmnet_sdio6/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio7/accept_ra 2
 
+    # Vibrator permissions
+    chown root system /sys/class/timed_output/vibrator/voltage_level
+    chmod 0664 /sys/class/timed_output/vibrator/voltage_level
+
     # load kineto_gan.ko
     insmod /system/lib/modules/kineto_gan.ko
 
@@ -181,6 +190,10 @@ on boot
 
 service abld /system/bin/mm-abl-daemon
     disabled
+
+service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
+    disabled
+    oneshot
 
 service dhcpcd_wlan0 /system/bin/dhcpcd -ABKLG
     disabled
@@ -194,7 +207,11 @@ service fm_dl /system/bin/sh /system/etc/init.qcom.fm.sh
 
 service hciattach /system/bin/sh /system/etc/init.qcom.bt.sh
     user bluetooth
-    group qcom_oncrpc bluetooth net_bt_admin
+    group qcom_oncrpc bluetooth net_bt_admin system
+    disabled
+    oneshot
+
+service iprenew_bt-pan /system/bin/dhcpcd -n
     disabled
     oneshot
 
@@ -267,6 +284,12 @@ service zchgd_onmode /system/bin/zchgd -onmode
     user root
     group root graphics
     oneshot
+
+on property:bluetooth.hciattach=true
+    start hciattach
+
+on property:bluetooth.hciattach=false
+    setprop bluetooth.status off
 
 on property:init.svc.bootanim=stopped
     start qcom-post-boot
